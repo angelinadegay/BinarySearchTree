@@ -20,16 +20,21 @@ public class BinarySearchTree<T extends Comparable<T>>
 	int rebalanceIndex;  //           "
 	
 	// for current traversal logic
-	protected LLQ<T> inOrderQ;
-	protected LLQ<T> preOrderQ;
-	protected LLQ<T> postOrderQ;
-	protected LLQ<T> revOrderQ;
+	protected ExtendedLLQ<T> inOrderQ = new ExtendedLLQ<>();
+	protected ExtendedLLQ<T> preOrderQ = new ExtendedLLQ<>();
+	protected ExtendedLLQ<T> postOrderQ = new ExtendedLLQ<>();
+	protected ExtendedLLQ<T> revOrderQ = new ExtendedLLQ<>();
 	
 	private TraversalType defaultTraversalType = TraversalType.INORDER;
 	
 	
 	public BinarySearchTree() {
 		root = null;
+	}
+	class ExtendedLLQ<T> extends LLQ<T> {
+	    public boolean isEmpty() {
+	        return super.front == null;
+	    }
 	}
 	
 	
@@ -373,56 +378,63 @@ public class BinarySearchTree<T extends Comparable<T>>
 	    switch (orderType) 
 	    {
 	        case INORDER:
-	            inOrderQ = new LLQ<T>();
+	            inOrderQ = new ExtendedLLQ<T>();
 	            inOrder(root);
 	            break;
 	        case PREORDER:
-	            preOrderQ = new LLQ<T>();
+	            preOrderQ = new ExtendedLLQ<T>();
 	            preOrder(root);
 	            break;
 	        case POSTORDER:
-	            postOrderQ = new LLQ<T>();
+	            postOrderQ = new ExtendedLLQ<T>();
 	            postOrder(root);
 	            break;
 	        case REVORDER:
-	            inOrderQ = new LLQ<T>();
+	            inOrderQ = new ExtendedLLQ<T>();
 	            revOrder(root);
 	            break;
 	    }
 	}
 
-
-    public T getNext (TraversalType orderType) {
-    /*
-     * preconditions
-     *  - the BST is not empty
-     *  - the BST traversal has been set for orderType
-     *  - the BST has not been modified since the most recent setTraversalType
-     *  - application code is responsible for not iterating beyond the end of the tree
-     *
-     * Returns the element at the current position on the BST for the specified traversal type
-     * and advances the value of the current position. 
-     *
-     */
-    	switch (orderType) 
-    	{
-	    	case INORDER  : return inOrderQ.dequeue();
-	    	case PREORDER : return preOrderQ.dequeue();
-	    	case POSTORDER: return postOrderQ.dequeue();
-	    	case REVORDER: return revOrderQ.dequeue();
-	    	default: return null;
-    	}
-    }
-    public Iterator<T> iterator2(TraversalType traversalType) 
-    {
-        return new BSTIterator<>(this, traversalType);
-    }
+	public T peekNext(TraversalType orderType) {
+	    switch (orderType) {
+	        case INORDER:
+	            return inOrderQ.isEmpty() ? null : inOrderQ.front.getData();
+	        case PREORDER:
+	            return preOrderQ.isEmpty() ? null : preOrderQ.front.getData();
+	        case POSTORDER:
+	            return postOrderQ.isEmpty() ? null : postOrderQ.front.getData();
+	        case REVORDER:
+	            return revOrderQ.isEmpty() ? null : revOrderQ.front.getData();
+	        default:
+	            return null;
+	    }
+	}
 
 	
-	@Override
-	public Iterator<T> iterator() 
-	{
-	    return iterator2(defaultTraversalType);
+	
+	
+
+	public T getNext(TraversalType orderType) {
+	    switch (orderType) {
+	        case INORDER:
+	            return inOrderQ.isEmpty() ? null : inOrderQ.dequeue();
+	        case PREORDER:
+	            return preOrderQ.isEmpty() ? null : preOrderQ.dequeue();
+	        case POSTORDER:
+	            return postOrderQ.isEmpty() ? null : postOrderQ.dequeue();
+	        case REVORDER:
+	            return revOrderQ.isEmpty() ? null : revOrderQ.dequeue();
+	        default:
+	            return null;
+	    }
+	}
+	public void setDefaultTraversalType(TraversalType traversalType) {
+	    this.defaultTraversalType = traversalType;
+	}
+	
+	public Iterator<T> iterator() {
+	    return new BSTIterator<>(this, defaultTraversalType);
 	}
 
   
